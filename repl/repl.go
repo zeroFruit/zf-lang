@@ -3,9 +3,10 @@ package repl
 import (
 	"bufio"
 	"fmt"
+	"io"
+
 	"github.com/zeroFruit/zf-lang/lexer"
 	"github.com/zeroFruit/zf-lang/token"
-	"io"
 )
 
 const PROMPT = ">> "

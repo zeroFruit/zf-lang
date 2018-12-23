@@ -3,10 +3,10 @@ package lexer
 import "github.com/zeroFruit/zf-lang/token"
 
 type Lexer struct {
-	input string
-	position int
+	input        string
+	position     int
 	readPosition int
-	ch byte
+	ch           byte
 }
 
 func New(input string) *Lexer {
@@ -133,7 +133,7 @@ func isLetter(ch byte) bool {
 
 func newToken(tokenType token.TokenType, ch byte) token.Token {
 	return token.Token{
-		Type: tokenType,
+		Type:    tokenType,
 		Literal: string(ch),
 	}
 }

@@ -1,17 +1,18 @@
 package lexer
 
 import (
-	"github.com/zeroFruit/zf-lang/token"
 	"testing"
+
+	"github.com/zeroFruit/zf-lang/token"
 )
 
 func TestNextToken(t *testing.T) {
 	input := `=+(){},;`
 
 	tests := []struct {
-		expectedType token.TokenType
+		expectedType    token.TokenType
 		expectedLiteral string
-	} {
+	}{
 		{token.ASSIGN, "="},
 		{token.PLUS, "+"},
 		{token.LPAREN, "("},
@@ -63,9 +64,9 @@ if (5 < 10) {
 `
 
 	tests := []struct {
-		expectedType token.TokenType
+		expectedType    token.TokenType
 		expectedLiteral string
-	} {
+	}{
 		{token.LET, "let"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},

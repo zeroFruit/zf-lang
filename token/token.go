@@ -2,27 +2,27 @@ package token
 
 const (
 	ILLEGAL = "ILLEGAL"
-	EOF = "EOF"
+	EOF     = "EOF"
 
 	// identifiers + literals
 	IDENT = "IDENT"
-	INT = "INT"
+	INT   = "INT"
 
 	// operators
-	ASSIGN = "="
-	PLUS = "+"
-	MINUS = "-"
-	BANG = "!"
+	ASSIGN   = "="
+	PLUS     = "+"
+	MINUS    = "-"
+	BANG     = "!"
 	ASTERISK = "*"
-	SLASH = "/"
+	SLASH    = "/"
 
-	LT = "<"
-	GT = ">"
-	EQ = "=="
+	LT     = "<"
+	GT     = ">"
+	EQ     = "=="
 	NOT_EQ = "!="
 
 	// Delimiters
-	COMMA = ","
+	COMMA     = ","
 	SEMICOLON = ";"
 
 	LPAREN = "("
@@ -32,28 +32,28 @@ const (
 
 	// keyword
 	FUNCTION = "FUNCTION"
-	LET = "LET"
-	TRUE = "TRUE"
-	FALSE = "FALSE"
-	IF = "IF"
-	ELSE = "ELSE"
-	RETURN = "RETURN"
+	LET      = "LET"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
 )
 
 type TokenType string
 
 type Token struct {
-	Type TokenType
+	Type    TokenType
 	Literal string
 }
 
 var keywords = map[string]TokenType{
-	"fn": FUNCTION,
-	"let": LET,
-	"true": TRUE,
-	"false": FALSE,
-	"if": IF,
-	"else": ELSE,
+	"fn":     FUNCTION,
+	"let":    LET,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
+	"else":   ELSE,
 	"return": RETURN,
 }
 

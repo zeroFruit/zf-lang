@@ -1,8 +1,9 @@
 package ast
 
 import (
-	"github.com/zeroFruit/zf-lang/token"
 	"testing"
+
+	"github.com/zeroFruit/zf-lang/token"
 )
 
 func TestString(t *testing.T) {

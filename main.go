@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
-	"github.com/zeroFruit/zf-lang/repl"
 	"os"
 	user2 "os/user"
+
+	"github.com/zeroFruit/zf-lang/repl"
 )
 
 func main() {
