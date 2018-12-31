@@ -5,6 +5,10 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/zeroFruit/zf-lang/vm"
+
+	"github.com/zeroFruit/zf-lang/compiler"
+
 	"github.com/zeroFruit/zf-lang/parser"
 
 	"github.com/zeroFruit/zf-lang/lexer"
@@ -37,7 +41,23 @@ func Start(in io.Reader, out io.Writer) {
 			printParserErrors(out, p.Errors())
 		}
 
-		io.WriteString(out, prog.String())
+		comp := compiler.New()
+		err := comp.Compile(prog)
+		if err != nil {
+			fmt.Fprintf(out, "Compilation failed:\n %s\n", err)
+			continue
+		}
+
+		machine := vm.New(comp.Bytecode())
+		err = machine.Run()
+		if err != nil {
+			fmt.Fprintf(out, "Executing bytecode failed:\n %s\n", err)
+			continue
+		}
+
+		stackTop := machine.StackTop()
+
+		io.WriteString(out, stackTop.Inspect())
 		io.WriteString(out, "\n")
 	}
 }
