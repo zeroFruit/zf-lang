@@ -27,12 +27,15 @@ type Compiler struct {
 
 	// prevInstruction is the on before lastInstruction
 	prevInstruction EmmittedInstriction
+
+	symbolTable *SymbolTable
 }
 
 func New() *Compiler {
 	return &Compiler{
 		instructions: code.Instructions{},
 		constants:    []object.Object{},
+		symbolTable:  NewSymbolTable(),
 	}
 }
 
@@ -45,6 +48,20 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+	case *ast.LetStatement:
+		if err := c.Compile(node.Value); err != nil {
+			return err
+		}
+
+		sym := c.symbolTable.Define(node.Name.Value)
+		c.emit(code.OpSetGlobal, sym.Index)
+	case *ast.Identifier:
+		sym, ok := c.symbolTable.Resolve(node.Value)
+		if !ok {
+			return fmt.Errorf("undefined variables %s", node.Value)
+		}
+
+		c.emit(code.OpGetGlobal, sym.Index)
 	case *ast.ExpressionStatement:
 		err := c.Compile(node.Expression)
 		if err != nil {
