@@ -2,6 +2,7 @@ package compiler
 
 import (
 	"fmt"
+	"sort"
 
 	"github.com/zeroFruit/zf-lang/ast"
 	"github.com/zeroFruit/zf-lang/code"
@@ -13,9 +14,15 @@ type Bytecode struct {
 	Constants    []object.Object
 }
 
-type EmmittedInstriction struct {
+type EmittedInstriction struct {
 	Opcode   code.Opcode
 	Position int
+}
+
+type CompilationScope struct {
+	instructions        code.Instructions
+	lastInstruction     EmittedInstriction
+	previousInstruction EmittedInstriction
 }
 
 type Compiler struct {
@@ -23,12 +30,15 @@ type Compiler struct {
 	constants    []object.Object
 
 	// lastInstruction is the very last instruction we emitted
-	lastInstruction EmmittedInstriction
+	lastInstruction EmittedInstriction
 
 	// prevInstruction is the on before lastInstruction
-	prevInstruction EmmittedInstriction
+	prevInstruction EmittedInstriction
 
 	symbolTable *SymbolTable
+
+	scopes     []CompilationScope
+	scopeIndex int
 }
 
 func New() *Compiler {
@@ -37,6 +47,13 @@ func New() *Compiler {
 		constants:    []object.Object{},
 		symbolTable:  NewSymbolTable(),
 	}
+}
+
+func NewWithState(s *SymbolTable, constants []object.Object) *Compiler {
+	compiler := New()
+	compiler.symbolTable = s
+	compiler.constants = constants
+	return compiler
 }
 
 func (c *Compiler) Compile(node ast.Node) error {
@@ -179,6 +196,46 @@ func (c *Compiler) Compile(node ast.Node) error {
 				return err
 			}
 		}
+	case *ast.StringLiteral:
+		str := &object.String{Value: node.Value}
+		c.emit(code.OpConstant, c.addConstant(str))
+	case *ast.ArrayLiteral:
+		for _, el := range node.Elements {
+			if err := c.Compile(el); err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpArray, len(node.Elements))
+	case *ast.HashLiteral:
+		keys := []ast.Expression{}
+		for k := range node.Pairs {
+			keys = append(keys, k)
+		}
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i].String() < keys[j].String()
+		})
+
+		for _, k := range keys {
+			if err := c.Compile(k); err != nil {
+				return err
+			}
+			if err := c.Compile(node.Pairs[k]); err != nil {
+				return err
+			}
+		}
+
+		c.emit(code.OpHash, len(node.Pairs)*2)
+	case *ast.IndexExpression:
+		if err := c.Compile(node.Left); err != nil {
+			return err
+		}
+
+		if err := c.Compile(node.Index); err != nil {
+			return err
+		}
+
+		c.emit(code.OpIndex)
 	}
 
 	return nil
@@ -199,7 +256,7 @@ func (c *Compiler) emit(op code.Opcode, operands ...int) int {
 
 func (c *Compiler) setLastInstruction(op code.Opcode, pos int) {
 	prev := c.lastInstruction
-	last := EmmittedInstriction{op, pos}
+	last := EmittedInstriction{op, pos}
 
 	c.prevInstruction = prev
 	c.lastInstruction = last
